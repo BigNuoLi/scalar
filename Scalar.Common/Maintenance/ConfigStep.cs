@@ -163,7 +163,7 @@ namespace Scalar.Common.Maintenance
                 return false;
             }
 
-            this.ConfigureWatchmanIntegration();
+            this.ConfigureFSMonitor();
 
             error = null;
             return true;
@@ -224,12 +224,13 @@ namespace Scalar.Common.Maintenance
             return true;
         }
 
-        private void ConfigureWatchmanIntegration()
+        private void ConfigureFSMonitor()
         {
             string watchmanLocation = ProcessHelper.GetProgramLocation(ScalarPlatform.Instance.Constants.ProgramLocaterCommand, "watchman");
             if (string.IsNullOrEmpty(watchmanLocation))
             {
-                this.Context.Tracer.RelatedWarning("Watchman is not installed - skipping Watchman configuration.");
+                this.Context.Tracer.RelatedWarning("Watchman is not installed - using internal fsmonitor.");
+                this.RunGitCommand(process => process.SetInLocalConfig("core.fsmonitor", ":internal:"), "config");
                 return;
             }
 
